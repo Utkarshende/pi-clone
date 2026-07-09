@@ -6,24 +6,30 @@ class AuthService {
   async register(userData) {
     const { fullName, email, password } = userData;
 
-    // Check if user already exists
+    // Validation
+    if (!fullName || !email || !password) {
+      throw new ApiError(400, "All fields are required.");
+    }
+
+    // Check if email already exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      throw new ApiError(409, "User already exists");
+      throw new ApiError(409, "User already exists.");
     }
 
-    // Create new user
+    // Create user
     const user = await User.create({
       fullName,
       email,
       password,
     });
 
-    // Remove password before sending response
+    // Fetch user without password
     const createdUser = await User.findById(user._id);
 
-    const token = generateAccessToken(createdUser._id);
+    // Generate JWT
+    const token = generateAccessToken(user._id);
 
     return {
       user: createdUser,
@@ -32,24 +38,28 @@ class AuthService {
   }
 
   async login(email, password) {
+    if (!email || !password) {
+      throw new ApiError(400, "Email and password are required.");
+    }
+
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-      throw new ApiError(401, "Invalid email or password");
+      throw new ApiError(401, "Invalid email or password.");
     }
 
     const isPasswordCorrect = await user.comparePassword(password);
 
     if (!isPasswordCorrect) {
-      throw new ApiError(401, "Invalid email or password");
+      throw new ApiError(401, "Invalid email or password.");
     }
 
     const token = generateAccessToken(user._id);
 
-    user.password = undefined;
+    const responseUser = await User.findById(user._id);
 
     return {
-      user,
+      user: responseUser,
       token,
     };
   }
@@ -58,7 +68,7 @@ class AuthService {
     const user = await User.findById(userId);
 
     if (!user) {
-      throw new ApiError(404, "User not found");
+      throw new ApiError(404, "User not found.");
     }
 
     return user;
