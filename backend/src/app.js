@@ -1,16 +1,21 @@
 import express from "express";
 import cors from "cors";
 
+import errorMiddleware from "./middlewares/error.middleware.js";
+
 const app = express();
 
 app.use(cors());
+
 app.use(express.json());
 
-app.get("/api/health", (_, res) => {
+app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "Server is running ",
+    message: "Server is running 🚀",
   });
 });
+
+app.use(errorMiddleware);
 
 export default app;
