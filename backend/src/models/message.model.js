@@ -16,7 +16,7 @@ const messageSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["user", "assistant"],
+      enum: ["user", "assistant", "system"],
       required: true,
     },
 
@@ -24,6 +24,17 @@ const messageSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+
+    model: {
+      type: String,
+      default: "gemini-2.5-flash",
+    },
+
+    status: {
+      type: String,
+      enum: ["sending", "sent", "failed"],
+      default: "sent",
     },
   },
   {
