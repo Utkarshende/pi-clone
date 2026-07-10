@@ -1,47 +1,63 @@
-import mongoose from "mongoose";
+import Message from "../models/message.model.js";
+import Chat from "../models/chat.model.js";
+import ApiError from "../utils/apiError.js";
+import aiService from "./ai.service.js";
 
-const messageSchema = new mongoose.Schema(
-  {
-    chat: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Chat",
-      required: true,
-    },
+class MessageService {
+  async sendMessage(chatId, userId, content) {
+    // Check chat ownership
+    const chat = await Chat.findOne({
+      _id: chatId,
+      user: userId,
+    });
 
-    sender: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    if (!chat) {
+      throw new ApiError(404, "Chat not found");
+    }
 
-    role: {
-      type: String,
-      enum: ["user", "assistant", "system"],
-      required: true,
-    },
+    // Save user message
+    const userMessage = await Message.create({
+      chat: chatId,
+      sender: userId,
+      role: "user",
+      content,
+    });
 
-    content: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    // Ask Gemini
+    const aiReply = await aiService.generateResponse(content);
 
-    model: {
-      type: String,
-      default: "gemini-2.5-flash",
-    },
+    // Save AI response
+    const assistantMessage = await Message.create({
+      chat: chatId,
+      sender: userId,
+      role: "assistant",
+      content: aiReply,
+    });
 
-    status: {
-      type: String,
-      enum: ["sending", "sent", "failed"],
-      default: "sent",
-    },
-  },
-  {
-    timestamps: true,
+    // Update last message
+    chat.lastMessage = aiReply;
+    await chat.save();
+
+    return {
+      userMessage,
+      assistantMessage,
+    };
   }
-);
 
-const Message = mongoose.model("Message", messageSchema);
+  async getMessages(chatId, userId) {
+    const chat = await Chat.findOne({
+      _id: chatId,
+      user: userId,
+    });
 
-export default Message;
+    if (!chat) {
+      throw new ApiError(404, "Chat not found");
+    }
+
+    return await Message.find({ chat: chatId }).sort({
+      createdAt: 1,
+    });
+  }
+}
+
+export default new MessageService();
