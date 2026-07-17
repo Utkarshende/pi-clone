@@ -1,11 +1,11 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/apiResponse.js";
-import chatService from "../services/chat.service.js";
+import chatService from "../models/chat.service.js";
 
 export const createChat = asyncHandler(async (req, res) => {
   const chat = await chatService.createChat(req.user._id);
 
-  return res
+  return resc
     .status(201)
     .json(new ApiResponse(201, "Chat created successfully", chat));
 });
