@@ -47,10 +47,22 @@ class MessageService {
       content: aiReply,
     });
 
-    chat.lastMessage = aiReply;
-    chat.updatedAt = new Date();
+  chat.lastMessage = aiReply;
 
-    await chat.save();
+// Auto-generate title only for the first user message
+const totalMessages = await Message.countDocuments({
+  chat: chatId,
+});
+
+if (totalMessages === 2 && chat.title === "New Chat") {
+  try {
+    chat.title = await titleService.generateTitle(content);
+  } catch (error) {
+    console.error("Title generation failed:", error);
+  }
+}
+
+await chat.save();
 
     return {
       userMessage,
