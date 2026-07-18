@@ -1,56 +1,75 @@
-import { FiPlus, FiSettings } from "react-icons/fi";
+import { useEffect } from "react";
+import { FiPlus } from "react-icons/fi";
 
-import useChats from "../../hooks/useChats";
+import { getChats, createChat } from "../../services/chat.service";
+
+import { useChat } from "../../context/ChatContext";
 
 function Sidebar() {
-  const { chats, addChat } = useChats();
+  const {
+    chats,
+    setChats,
+    selectedChat,
+    setSelectedChat,
+  } = useChat();
+
+  useEffect(() => {
+    loadChats();
+  }, []);
+
+  async function loadChats() {
+    try {
+      const data = await getChats();
+
+      setChats(data);
+
+      if (data.length > 0) {
+        setSelectedChat(data[0]);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function handleNewChat() {
+    try {
+      const chat = await createChat();
+
+      setChats((prev) => [chat, ...prev]);
+
+      setSelectedChat(chat);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   return (
     <div className="w-72 bg-[#171717] flex flex-col">
-
       <div className="p-4">
-
         <button
-          onClick={addChat}
-          className="w-full bg-[#343541] rounded-lg py-3 hover:bg-[#40414f]"
+          onClick={handleNewChat}
+          className="w-full flex items-center justify-center gap-2 bg-[#343541] hover:bg-[#40414f] rounded-lg py-3"
         >
-          <div className="flex items-center justify-center gap-2">
-
-            <FiPlus />
-
-            New Chat
-
-          </div>
-
+          <FiPlus />
+          New Chat
         </button>
-
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3">
-
+      <div className="flex-1 overflow-y-auto px-3">
         {chats.map((chat) => (
           <button
             key={chat._id}
-            className="w-full text-left rounded-lg hover:bg-[#2d2d2d] p-3 mb-2"
+            onClick={() => setSelectedChat(chat)}
+            className={`w-full text-left p-3 rounded-lg mb-2 ${
+              selectedChat?._id === chat._id
+                ? "bg-[#40414f]"
+                : "hover:bg-[#2d2d2d]"
+            }`}
           >
             {chat.title}
           </button>
         ))}
-
       </div>
-
-      <div className="border-t border-gray-700 p-4">
-
-        <button className="flex items-center gap-2">
-
-          <FiSettings />
-
-          Settings
-
-        </button>
-
-      </div>
-
     </div>
   );
 }

@@ -1,90 +1,27 @@
-import Chat from "../models/chat.model.js";
-import Message from "../models/message.model.js";
-import ApiError from "../utils/apiError.js";
+import api from "./axios";
 
-class ChatService {
-  async createChat(userId) {
-    const chat = await Chat.create({
-      user: userId,
-      title: "New Chat",
-    });
+export const getChats = async () => {
+  const res = await api.get("/chat");
 
-    return chat;
-  }
+  return res.data.data;
+};
 
-  async getChats(userId) {
-    return await Chat.find({
-      user: userId,
-      isArchived: false,
-    }).sort({
-      updatedAt: -1,
-    });
-  }
+export const createChat = async () => {
+  const res = await api.post("/chat");
 
-  async getChatById(chatId, userId) {
-    const chat = await Chat.findOne({
-      _id: chatId,
-      user: userId,
-    });
+  return res.data.data;
+};
 
-    if (!chat) {
-      throw new ApiError(404, "Chat not found");
-    }
+export const deleteChat = async (chatId) => {
+  const res = await api.delete(`/chat/${chatId}`);
 
-    return chat;
-  }
+  return res.data.data;
+};
 
-  async renameChat(chatId, title, userId) {
-    const chat = await this.getChatById(chatId, userId);
+export const renameChat = async (chatId, title) => {
+  const res = await api.patch(`/chat/${chatId}`, {
+    title,
+  });
 
-    chat.title = title;
-
-    await chat.save();
-
-    return chat;
-  }
-
-  async pinChat(chatId, userId) {
-    const chat = await this.getChatById(chatId, userId);
-
-    chat.isPinned = !chat.isPinned;
-
-    await chat.save();
-
-    return chat;
-  }
-
-  async archiveChat(chatId, userId) {
-    const chat = await this.getChatById(chatId, userId);
-
-    chat.isArchived = true;
-
-    await chat.save();
-
-    return chat;
-  }
-
-  async restoreChat(chatId, userId) {
-    const chat = await this.getChatById(chatId, userId);
-
-    chat.isArchived = false;
-
-    await chat.save();
-
-    return chat;
-  }
-
-  async deleteChat(chatId, userId) {
-    const chat = await this.getChatById(chatId, userId);
-
-    await Message.deleteMany({
-      chat: chat._id,
-    });
-
-    await chat.deleteOne();
-
-    return;
-  }
-}
-
-export default new ChatService();
+  return res.data.data;
+};

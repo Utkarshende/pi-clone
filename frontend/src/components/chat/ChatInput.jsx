@@ -1,40 +1,59 @@
 import { useState } from "react";
-import { FiSend } from "react-icons/fi";
+
+import { sendMessage } from "../../services/message.service";
+
+import { useChat } from "../../context/ChatContext";
 
 function ChatInput() {
-  const [message, setMessage] = useState("");
+  const [text, setText] = useState("");
 
-  const handleSubmit = (e) => {
+  const {
+    selectedChat,
+    messages,
+    setMessages,
+  } = useChat();
+
+  async function handleSubmit(e) {
     e.preventDefault();
 
-    console.log(message);
+    if (!text.trim()) return;
 
-    setMessage("");
-  };
+    if (!selectedChat) return;
+
+    try {
+      const data = await sendMessage(
+        selectedChat._id,
+        text
+      );
+
+      setMessages([
+        ...messages,
+        data.userMessage,
+        data.assistantMessage,
+      ]);
+
+      setText("");
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   return (
     <form
       onSubmit={handleSubmit}
       className="border-t border-gray-700 p-5"
     >
-      <div className="flex items-center gap-3">
-
+      <div className="flex gap-3">
         <input
-          type="text"
-          placeholder="Message AI..."
-          value={message}
-          onChange={(e) =>
-            setMessage(e.target.value)
-          }
-          className="flex-1 bg-[#343541] rounded-xl px-5 py-4 outline-none"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Ask anything..."
+          className="flex-1 bg-[#343541] rounded-xl px-5 py-4 text-white outline-none"
         />
 
-        <button
-          className="bg-blue-600 p-4 rounded-xl hover:bg-blue-700"
-        >
-          <FiSend />
+        <button className="bg-blue-600 rounded-xl px-8">
+          Send
         </button>
-
       </div>
     </form>
   );
