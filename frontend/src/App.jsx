@@ -4,16 +4,25 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Chat from "./pages/Chat";
 
+import ProtectedRoute from "./routes/ProtectedRoute";
+
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/chat" />} />
+      <Route path="/" element={<Navigate to="/chat" replace />} />
 
       <Route path="/login" element={<Login />} />
 
       <Route path="/register" element={<Register />} />
 
-      <Route path="/chat" element={<Chat />} />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
