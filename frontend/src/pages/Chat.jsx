@@ -1,11 +1,7 @@
+import Layout from "../components/layout/Layout";
+
 function Chat() {
-  return (
-    <div className="h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-bold">
-        Chat Page
-      </h1>
-    </div>
-  );
+  return <Layout />;
 }
 
 export default Chat;
