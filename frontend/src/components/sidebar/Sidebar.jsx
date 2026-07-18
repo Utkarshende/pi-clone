@@ -1,37 +1,37 @@
 import { FiPlus, FiSettings } from "react-icons/fi";
 
-const chats = [
-  {
-    id: 1,
-    title: "React Interview Questions",
-  },
-  {
-    id: 2,
-    title: "Node Authentication",
-  },
-  {
-    id: 3,
-    title: "Gym Diet Plan",
-  },
-];
+import useChats from "../../hooks/useChats";
 
 function Sidebar() {
+  const { chats, addChat } = useChats();
+
   return (
     <div className="w-72 bg-[#171717] flex flex-col">
 
       <div className="p-4">
-        <button className="w-full flex items-center justify-center gap-2 bg-[#343541] hover:bg-[#40414f] transition rounded-lg py-3">
-          <FiPlus />
-          New Chat
+
+        <button
+          onClick={addChat}
+          className="w-full bg-[#343541] rounded-lg py-3 hover:bg-[#40414f]"
+        >
+          <div className="flex items-center justify-center gap-2">
+
+            <FiPlus />
+
+            New Chat
+
+          </div>
+
         </button>
+
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3">
+      <div className="flex-1 overflow-y-auto p-3">
 
         {chats.map((chat) => (
           <button
-            key={chat.id}
-            className="w-full text-left p-3 rounded-lg hover:bg-[#2a2b32] mb-2"
+            key={chat._id}
+            className="w-full text-left rounded-lg hover:bg-[#2d2d2d] p-3 mb-2"
           >
             {chat.title}
           </button>
