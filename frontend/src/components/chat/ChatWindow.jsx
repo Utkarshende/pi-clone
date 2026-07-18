@@ -1,35 +1,23 @@
 import MessageBubble from "./MessageBubble";
 import ChatInput from "./ChatInput";
 
-const messages = [
-  {
-    id: 1,
-    role: "assistant",
-    content: "Hello 👋 How can I help you today?",
-  },
-  {
-    id: 2,
-    role: "user",
-    content: "Explain React Hooks.",
-  },
-];
+import useMessages from "../../hooks/useMessages";
 
 function ChatWindow() {
+  const { messages } = useMessages();
+
   return (
     <>
-      <div className="flex-1 overflow-y-auto p-10 space-y-6">
-
+      <div className="flex-1 overflow-y-auto p-8 space-y-5">
         {messages.map((message) => (
           <MessageBubble
-            key={message.id}
+            key={message._id}
             message={message}
           />
         ))}
-
       </div>
 
       <ChatInput />
-
     </>
   );
 }

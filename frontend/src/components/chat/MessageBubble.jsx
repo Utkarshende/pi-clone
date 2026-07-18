@@ -10,7 +10,7 @@ function MessageBubble({ message }) {
       }`}
     >
       <div
-        className={`max-w-3xl px-5 py-4 rounded-2xl whitespace-pre-wrap ${
+        className={`rounded-2xl px-5 py-4 max-w-4xl whitespace-pre-wrap ${
           isUser
             ? "bg-blue-600"
             : "bg-[#343541]"
